@@ -1,15 +1,13 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import axiosClient from '../axiosClient';
 import { useStateContext } from '../context/ContextProvider';
 
 
 const login = () => {
-  
-  
   const emailRef = useRef();
   const passwordRef = useRef();
-  
+  const [message, setMessage] = useState(null);
   const {setUser, setToken} = useStateContext();
 
   const onSubmit = (ev) => {
@@ -21,20 +19,18 @@ const login = () => {
     }
 
     axiosClient.post('/login', payload)
-    .then((data) => {
-      debugger;
-      console.log(data.data.user)
-      setUser(data.data.user);
-      setToken(data.data.token);
+    .then(({data}) => {
+
+      setUser(data.user);
+      setToken(data.token);
     })
     .catch(err => {
       const response = err.response;
       if(response && response.status == 422) {
-        console.log(response.data.errors)
+        setMessage(response.data.message)
       }
     })
 
-    console.log(payload)
 
   }
 
@@ -43,6 +39,13 @@ const login = () => {
       <div className="form">
         <form onSubmit={onSubmit}>
           <h1 className="title">Login into your account</h1>
+
+          {
+            message && 
+            <div className="alert">
+             <p>{message}</p>
+            </div>
+          }
           
           <input ref={emailRef} type="email" placeholder="Email" />
           <input ref={passwordRef}  type="password" placeholder="Password" />

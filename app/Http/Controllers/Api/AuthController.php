@@ -35,7 +35,7 @@ class AuthController extends Controller
         if(!Auth::attempt($credentials)) {
             return response([
                 'message' => 'Provided email address or password is in coreect'
-            ]);
+            ],422);
         }
 
          /** @var \App\Models\User $user */

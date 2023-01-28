@@ -4,10 +4,11 @@ import {createBrowserRouter, Navigate} from "react-router-dom";
 import Login from "./views/Login";
 import NotFound from "./views/NotFound";
 import Signup from "./views/Signup";
-import Users from "./views/Users";
+
 import DefaultLayout from "./components/DefaultLayout"
 import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./views/DashBoard";
+import Expenses from './views/Expenses';
 
 
 const router = createBrowserRouter([
@@ -17,15 +18,15 @@ const router = createBrowserRouter([
         children: [
             {
                 path:'/',
-                element: <Navigate to="/users" />
+                element: <Navigate to="/expenses" />
             },
             {
                 path:'/dashboard',
                 element: <Dashboard />
             },
             {
-                path:'/users',
-                element:<Users />
+                path:'/expenses',
+                element:<Expenses />
             },
         ]
     },

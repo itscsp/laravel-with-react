@@ -1,12 +1,15 @@
 import React from 'react'
+import { useEffect } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom'
 import axiosClient from '../axiosClient';
 import { useStateContext } from '../context/ContextProvider'
 
 const DefaultLayout = () => {
+
+    
     const { user, token, setUser, setToken } = useStateContext();
 
-
+    console.log('Checking for user', user)
 
     if (!token) {
         return <Navigate to="/login" />
@@ -17,32 +20,38 @@ const DefaultLayout = () => {
     const onLogout = (ev) => {
         ev.preventDefault()
 
-        debugger;
-        const payload = {
-            user: user,
-            token: token
-        }
-
 
         axiosClient.post('/logout')
             .then(() => {
-                setUser();
-                setToken();
+                setUser({});
+                setToken(null);
             })
             
         // console.log(response)
     }
+    console.log('Checking for user 2',user)
+
+    useEffect(() => {
+
+        axiosClient.get('/user')
+        .then(({data}) => {
+            setUser(data)
+        })
+        
+    }, [])
+    
+    console.log('Checking for user 3',user)
 
     return (
         <div id='defaultLayout'>
             <aside>
                 <Link to='/dashboard'>Dashboard</Link>
-                <Link to='/users'>Users</Link>
+                <Link to='/expenses'>Expenses</Link>
             </aside>
             <div className="content">
                 <header>
                     <div>
-                        Header
+                        Room Expenses Tracker
                     </div>
                     <div>
                         {user.name}
