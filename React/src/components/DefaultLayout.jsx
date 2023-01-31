@@ -7,9 +7,9 @@ import { useStateContext } from '../context/ContextProvider'
 const DefaultLayout = () => {
 
     
-    const { user, token, setUser, setToken } = useStateContext();
+    const { user, token, notification, setUser, setToken } = useStateContext();
 
-    console.log('Checking for user', user)
+    // console.log('Checking for user', user)
 
     if (!token) {
         return <Navigate to="/login" />
@@ -29,7 +29,7 @@ const DefaultLayout = () => {
             
         // console.log(response)
     }
-    console.log('Checking for user 2',user)
+    // console.log('Checking for user 2',user)
 
     useEffect(() => {
 
@@ -40,7 +40,7 @@ const DefaultLayout = () => {
         
     }, [])
     
-    console.log('Checking for user 3',user)
+    // console.log('Checking for user 3',user)
 
     return (
         <div id='defaultLayout'>
@@ -62,6 +62,12 @@ const DefaultLayout = () => {
 
                     <Outlet />
                 </main>
+
+                {notification &&
+                     <div className="notification">
+                     {notification}
+                   </div>
+                }
             </div>
         </div>
     )

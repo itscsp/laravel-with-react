@@ -7,8 +7,9 @@ import Signup from "./views/Signup";
 
 import DefaultLayout from "./components/DefaultLayout"
 import GuestLayout from "./components/GuestLayout";
-import Dashboard from "./views/DashBoard";
+import Dashboard from "./views/Dashboard";
 import Expenses from './views/Expenses';
+import ExpenseForm from './views/ExpenseForm';
 
 
 const router = createBrowserRouter([
@@ -18,16 +19,27 @@ const router = createBrowserRouter([
         children: [
             {
                 path:'/',
-                element: <Navigate to="/expenses" />
+                exact: true,
+                element: <Navigate to="/dashboard" />
             },
             {
                 path:'/dashboard',
+                exact: true,
                 element: <Dashboard />
             },
             {
                 path:'/expenses',
+                exact: true,
                 element:<Expenses />
             },
+            {
+                path:'/expenses/:id',
+                element:<ExpenseForm key="expenseUpdate" />
+            },
+            {
+                path:'/expenses/new',
+                element:<ExpenseForm key="expenseCreate" />
+            }
         ]
     },
     {

@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     //
+    public function users(Request $request){
+        $users = User::all();
+        
+        return response()->json($users);
+    }
+
        public function signup(SignupRequest $request){
         $data = $request->validated();
 
@@ -55,6 +61,8 @@ class AuthController extends Controller
 
         return response([
             'message' => 'Your loged out!'
-        ], 204);
+        ]);
+
+
     }
 }

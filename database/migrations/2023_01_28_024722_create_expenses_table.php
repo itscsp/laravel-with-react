@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('description');
             $table->float('amount');
             $table->timestamps();
-    
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

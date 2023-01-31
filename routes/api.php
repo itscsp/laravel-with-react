@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ExpenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,14 +17,22 @@ use App\Http\Controllers\Api\UserController;
 |
 */
 
+
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('/logout', [AuthController::class, 'logout']);
-    
-    Route::get('/user', function (Request $request) {
 
-        return $request->user();
-        
-    });
+    Route::get('/user', function (Request $request) { return $request->user(); });
+    Route::get('/users', [AuthController::class, 'users']);
+
+    
+    Route::post('/add-expense', [ExpenseController::class, 'store']);
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy']);
+    Route::get('/expenses/{id}', [ExpenseController::class, 'show']);
+    Route::put('/expenses/{id}', [ExpenseController::class, 'update']);
+    Route::patch('/expenses/{id}', [ExpenseController::class, 'update']);
+
+
 
 });
 

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Expense;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ExpenseController extends Controller
 {
@@ -14,7 +16,9 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        //
+        $expenses = Expense::with('user')->orderBy('updated_at', 'desc')->paginate(10);
+        
+    return response()->json($expenses);
     }
 
     /**
@@ -26,6 +30,23 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         //
+        $validatedData = $request->validate([
+            'user_id' => 'required',
+            'expense_date' => 'required|date',
+            'description' => 'required|min:10|max:150',
+            'amount' => 'required|numeric'
+        ]);
+
+        $expense = new Expense();
+        $expense->user_id = $validatedData['user_id'];
+        $expense->expense_date = $validatedData['expense_date'];
+        $expense->description = $validatedData['description'];
+        $expense->amount = $validatedData['amount'];
+        $expense->save();
+
+        return response()->json([
+            'message' => 'Expense added successfully',
+        ], 201);
     }
 
     /**
@@ -36,7 +57,15 @@ class ExpenseController extends Controller
      */
     public function show($id)
     {
-        //
+        $expense = Expense::find($id);
+        if($expense){
+            return response()->json($expense);
+        }else{
+            return response()->json([
+                'message' => 'Expense not found',
+                'status' => 404
+            ]);
+        }
     }
 
     /**
@@ -48,7 +77,34 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $expense = Expense::find($id);
+
+        if($expense) {
+            
+            $validatedData = $request->validate([
+                'user_id' => 'required',
+                'expense_date' => 'required|date',
+                'description' => 'required|min:10|max:150',
+                'amount' => 'required|numeric'
+            ]);
+
+            
+            $expense->user_id = $validatedData['user_id'];
+            $expense->expense_date = $validatedData['expense_date'];
+            $expense->description = $validatedData['description'];
+            $expense->amount = $validatedData['amount'];
+            $expense->save();
+
+            return response()->json([
+                'message' => 'Expense update succesfull',
+                'status' => 200
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Expense not found',
+                'status' => 404
+            ]);
+        }
     }
 
     /**
@@ -59,6 +115,18 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $expense = Expense::find($id);
+        if($expense){
+            $expense->delete();
+            return response()->json([
+                'message' => 'Expense deleted successfully',
+                'status' => 200
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'Expense not found',
+                'status' => 404
+            ]);
+        }
     }
 }
