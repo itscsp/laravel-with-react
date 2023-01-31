@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom';
 import axiosClient from '../axiosClient';
 
 const Dashboard = () => {
@@ -31,7 +32,7 @@ const Dashboard = () => {
     <div>
       <div style={flex}>
         <div>Users</div>
-
+        <Link className='btn-add' to="/user/new">Add New</Link>
       </div>
       <div className="card animated fadInDown">
         <table>

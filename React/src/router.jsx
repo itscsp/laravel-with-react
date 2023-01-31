@@ -39,7 +39,11 @@ const router = createBrowserRouter([
             {
                 path:'/expenses/new',
                 element:<ExpenseForm key="expenseCreate" />
-            }
+            },
+            {
+                path:'/user/new',
+                element:<Signup />
+            },
         ]
     },
     {
@@ -50,10 +54,6 @@ const router = createBrowserRouter([
             {
                 path: '/login',
                 element: <Login />
-            },
-            {
-                path:'/signup',
-                element:<Signup />
             },
         ]
     },

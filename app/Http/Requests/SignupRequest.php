@@ -35,7 +35,11 @@ class SignupRequest extends FormRequest
                     ->letters()
                     ->symbols()
                     ->numbers()
-            ]
+            ],
+            'role' => ['required', 'numeric'],
+            'status' => ['required', 'numeric'],
+            'senderEmail' => ['required', 'string'],
+            'senderPassword' => ['required', 'string']
         ];
     }
 }

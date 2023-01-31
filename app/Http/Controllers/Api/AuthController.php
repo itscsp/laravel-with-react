@@ -8,6 +8,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignupRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -23,15 +24,31 @@ class AuthController extends Controller
 
         /** @var \App\Models\User $user */
 
+        $userPermision = User::where('email', $data['senderEmail'])->first();
+
+        if (!$userPermision ||  $userPermision['role'] != 1 || !Hash::check($data['senderPassword'], $userPermision->password)) {
+
+            return response([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
         $user = User::Create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'role' => $data['role'],
+            'status' => $data['status']
         ]);
 
         $token = $user->createToken('main')->plainTextToken;
 
-        return response(compact('user','token'));
+        $response = [
+            'user' => $user,
+            'token' => $token,
+        ];
+
+        return response($response, 201);
     }
 
     public function login(LoginRequest $request) {
@@ -49,7 +66,12 @@ class AuthController extends Controller
        
         $token = $user->createToken('main')->plainTextToken;
 
-        return response(compact('user','token'));
+        $response = [
+            'user' => $user,
+            'token' => $token,
+        ];
+
+        return response($response, 201);
 
     }
 

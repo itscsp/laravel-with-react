@@ -1,0 +1,12 @@
+1. Create Add and Edit user page to admin user
+    - 
+
+2. Get user deatails with 
+    - current month total Expense 
+    - current month total Investment
+    - current month, To receive/To pay amount
+
+3. Add expense and edit expense
+
+4. Add Investment and Edit Investment to only admin user
+
