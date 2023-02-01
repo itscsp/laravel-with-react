@@ -20,7 +20,7 @@ use App\Http\Controllers\Api\ExpenseController;
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('/signup', [AuthController::class, 'signup']);
-    
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/user', function (Request $request) { return $request->user(); });
@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/expenses/{id}', [ExpenseController::class, 'show']);
     Route::put('/expenses/{id}', [ExpenseController::class, 'update']);
     Route::patch('/expenses/{id}', [ExpenseController::class, 'update']);
-
+    Route::get('/monthly-expenses/{month}', [ExpenseController::class,'monthlyExpenses']);
 
 
 });

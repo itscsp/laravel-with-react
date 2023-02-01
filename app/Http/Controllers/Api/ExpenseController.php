@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class ExpenseController extends Controller
 {
@@ -129,4 +130,32 @@ class ExpenseController extends Controller
             ]);
         }
     }
+
+     /**
+     * Display a listing of the monthly total expenses of each user.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function monthlyExpenses($month)
+    {
+
+        $users = User::with(['expenses' => function($query) use ($month) {
+            $query->whereMonth('expense_date', $month);
+        }])->get();
+
+        $response = [];
+        foreach ($users as $user) {
+            $totalExpense = 0;
+            foreach ($user->expenses as $expense) {
+                $totalExpense += $expense->amount;
+            }
+            $response[] = [
+                'username' => $user->name,
+                'total_expense' => $totalExpense,
+            ];
+        }
+    
+        return response()->json($response);
+    }
+    
 }
