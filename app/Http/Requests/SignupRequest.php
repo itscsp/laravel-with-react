@@ -38,8 +38,8 @@ class SignupRequest extends FormRequest
             ],
             'role' => ['required', 'numeric'],
             'status' => ['required', 'numeric'],
-            'senderEmail' => ['required', 'string'],
-            'senderPassword' => ['required', 'string']
+            'senderEmail' => ['email'],
+            'senderPassword' => ['string']
         ];
     }
 }

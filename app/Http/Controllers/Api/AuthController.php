@@ -14,24 +14,43 @@ class AuthController extends Controller
 {
     //
     public function users(Request $request){
-        $users = User::all();
-        
-        return response()->json($users);
-    }
+        $currentRequest =  Auth::user();
 
-       public function signup(SignupRequest $request){
-        $data = $request->validated();
-
-        /** @var \App\Models\User $user */
-
-        $userPermision = User::where('email', $data['senderEmail'])->first();
-
-        if (!$userPermision ||  $userPermision['role'] != 1 || !Hash::check($data['senderPassword'], $userPermision->password)) {
-
+        // checking request is by admin user
+                
+        if (!$currentRequest ||  $currentRequest['role'] != 1) {
             return response([
                 'message' => 'Unauthenticated'
             ], 401);
         }
+
+        
+        $users = User::where('status', 1)->get();
+        
+        return response()->json($users);
+    }
+
+
+    public function signup(SignupRequest $userdata){
+        $data = $userdata->validated();
+
+
+        // checking request is by admin user and requested user role is admin
+        if($data['role'] == '1'){
+            $currentRequest = User::where('email', $data['senderEmail'])->first();
+            $currentpassword = !Hash::check($data['senderPassword'], $currentRequest->password);
+        }
+                       
+        if($data['role'] == '1' && $currentpassword){
+                return response([
+                    'message' => 'Your not allowed to create admin user',
+                    'currentpassword' => $currentpassword,
+                    'role' => $currentRequest['role'],
+                    'sender pass' => $data['senderPassword']
+                ], 401);           
+        }
+
+                
 
         $user = User::Create([
             'name' => $data['name'],
@@ -55,15 +74,26 @@ class AuthController extends Controller
 
         $credentials = $request->validated();
 
-        if(!Auth::attempt($credentials)) {
+        $user = User::where('email', $credentials['email'])->first();
+
+         //checking user credentails 
+        if(!$user || !Hash::check($credentials['password'], $user->password)) {
             return response([
-                'message' => 'Provided email address or password is in coreect'
-            ],422);
+                'message' => 'Bad Credentials'
+            ], 422);
         }
 
-         /** @var \App\Models\User $user */
-        $user = Auth::user();
-       
+        //checking user status == active
+
+        if($user['status'] == 0){
+            return response([
+                'message' => 'You are inactive'
+            ], 422);
+        }
+
+        
+
+               
         $token = $user->createToken('main')->plainTextToken;
 
         $response = [
@@ -87,4 +117,33 @@ class AuthController extends Controller
 
 
     }
+
+
+    
+    public function setStatus($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $currentRequest =  Auth::user();
+        
+        // checking status change request is by admin user
+        if (!$currentRequest ||  $currentRequest['role'] != 1 ) {
+            return response([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+        
+       
+
+        $user->status = 0;
+        $user->save();
+
+        return response()->json(['message' => 'User status updated to inactive', 'Inactive' => $user]);
+    }
+
+
 }
