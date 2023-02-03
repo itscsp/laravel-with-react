@@ -131,76 +131,20 @@ class ExpenseController extends Controller
         }
     }
 
-
-    
-    public function getExpensesByMonth($month) {
-        $expenses = Expense::whereMonth('expense_date', $month)->get();
-        return response()->json($expenses);
-    }
-
-
-
-     /**
-     * Display a listing of the monthly total expenses of each user.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function monthlyExpenseInvestment($month)
+    public function getExpensesByMonth(Request $request)
     {
-        // First, calculate the total expenses for the given month
-        $totalExpenses = Expense::whereMonth('expense_date', $month)->sum('amount');
-        $totalInvestment = 0;
+        $month = $request->month;
+        $year = $request->year;
 
-        // Next, get a list of all active users
-        $activeUsers = User::where('status', 1)->get();
+       
+        $expenses = Expense::whereYear('expense_date', $year)
+                ->whereMonth('expense_date', $month)
+                ->with('user')
+                ->get();
 
-        // Divide the total expenses by the number of active users
-        $expensePerUser = ceil($totalExpenses / count($activeUsers));
-
-        // Create a new array to store the results
-        $results = [];
-
-
-
-        // Loop through each active user and add their name and calculated expense amount to the results array
-        foreach ($activeUsers as $user) {
-            $results[] = [
-                'name' => $user->name,
-                'divided_expense_amount' => $expensePerUser,
-                'user_investment_amount' => $totalInvestment,
-                'toPay' => 0,
-                'toReceive' => 0,
-            ];
-        }
-
-        // Return the results as a JSON response
-        return response()->json($results);
-    }
-    
-    public function monthlyExpensesAddedByEachUser($month) {
-        
-        $users = User::with(['expenses' => function($query) use ($month) {
-            $query->whereMonth('expense_date', $month);
-        }])->get();
-    
-        $response = [];
-        foreach ($users as $user) {
-            $totalExpense = 0;
-            foreach ($user->expenses as $expense) {
-                $totalExpense += $expense->amount;
-            }
-            $response[] = [
-                'username' => $user->name,
-                'total_expense' => $totalExpense,
-            ];
-        }
-    
-        return response()->json($response);
-
-    }
-
-    public function currentUser(Request $request) {
-        return $request->user(); 
+        return response()->json([
+            'expenses' => $expenses
+        ]);
     }
     
 }

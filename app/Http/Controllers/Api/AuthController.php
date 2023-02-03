@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Investment;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignupRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Expense;
 
 class AuthController extends Controller
 {
@@ -120,8 +122,7 @@ class AuthController extends Controller
 
 
     
-    public function setStatus($id)
-    {
+    public function setStatus($id){
         $user = User::find($id);
 
         if (!$user) {
@@ -144,6 +145,67 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User status updated to inactive', 'Inactive' => $user]);
     }
+
+    public function monthlyTotals(Request $request)
+    {
+        $month = $request->month;
+        $year = $request->year;
+      
+        // Get the total expenses of each user
+            $expenses = Expense::whereMonth('expense_date', $month)
+            ->whereYear('expense_date', $year)
+            ->groupBy('user_id')
+            ->selectRaw('user_id, SUM(amount) as total_expense')
+            ->get();
+
+        // Get the total investments of each user
+        $investments = Investment::whereMonth('investment_date', $month)
+            ->whereYear('investment_date', $year)
+            ->groupBy('user_id')
+            ->selectRaw('user_id, SUM(amount) as total_investment')
+            ->get();
+
+        $result = [];
+        foreach ($expenses as $expense) {
+            $user_id = $expense->user_id;
+            $investment = $investments->where('user_id', $user_id)->first();
+
+            if ($investment) {
+                // Calculate the difference between expenses and investment
+                $difference = $investment->total_investment - $expense->total_expense;
+                
+                if ($difference > 0) {
+                    $result[$user_id] = [
+                        'user_id' => $user_id,
+                        'total_expense' => $expense->total_expense,
+                        'total_investment' => $investment->total_investment,
+                        'to_receive' => $difference,
+                    ];
+                } else {
+                    $result[$user_id] = [
+                        'user_id' => $user_id,
+                        'total_expense' => $expense->total_expense,
+                        'total_investment' => $investment->total_investment,
+                        'to_pay' => abs($difference),
+                    ];
+                }
+            } else {
+                $result[$user_id] = [
+                    'user_id' => $user_id,
+                    'total_expense' => $expense->total_expense,
+                    'total_investment' => 0,
+                    'to_pay' => $expense->total_expense,
+                ];
+            }
+        }
+
+        return response($result);
+    }
+
+    public function currentUser(Request $request) {
+        return $request->user(); 
+    }
+
 
 
 }
