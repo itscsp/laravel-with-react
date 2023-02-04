@@ -150,6 +150,22 @@ class AuthController extends Controller
     {
         $month = $request->month;
         $year = $request->year;
+
+        // Get the total expenses of the current month
+            $totalExpenses = Expense::whereMonth('expense_date', $month)
+            ->whereYear('expense_date', $year)
+            ->sum('amount');
+
+            $totalInvestment = Investment::whereMonth('investment_date', $month)
+            ->whereYear('investment_date', $year)
+            ->sum('amount');
+
+        // Get the total number of active users
+        $users = User::where('status', 1)->get();
+        $totalUsers = $users->count();
+
+        // Divide the total expenses by the total number of active users
+            $expensesPerUser = $totalExpenses / $totalUsers;
       
         // Get the total expenses of each user
             $expenses = Expense::whereMonth('expense_date', $month)
@@ -157,6 +173,7 @@ class AuthController extends Controller
             ->groupBy('user_id')
             ->selectRaw('user_id, SUM(amount) as total_expense')
             ->get();
+
 
         // Get the total investments of each user
         $investments = Investment::whereMonth('investment_date', $month)
@@ -166,40 +183,77 @@ class AuthController extends Controller
             ->get();
 
         $result = [];
+        foreach ($users as $user) {
+            $user_id = $user->id;
+            $expense = $expenses->where('user_id', $user_id)->first();
+
+            $investment = $investments->where('user_id', $user_id)->first();
+            // $is_investment = ($investment->total_investment) ?  
+            if(is_null($investment)){
+                $difference = 0;
+            }else{
+                $difference = abs($investment->total_investment - $expensesPerUser);
+            }
+
+            if ($difference > 0) {
+                $result[$user_id] = [
+                    'user_id' => $user_id,
+                    'total_share' => $expensesPerUser,
+                    'total_investment' => ($difference == 0) ? 0 : $investment->total_investment,
+                    'to_receive' => abs(($difference == 0) ? 0 : $investment->total_investment - $expensesPerUser),
+                ];
+            } else {
+                $result[$user_id] = [
+                    'user_id' => $user_id,
+                    'total_share' => $expensesPerUser,
+                    'total_investment' => ($difference == 0) ? 0 : $investment->total_investment,
+                    'to_pay' => abs(number_format( ($difference == 0) ? 0 : $investment->total_investment, 2) - $expensesPerUser),
+                ];
+            }
+           
+        }
+        
         foreach ($expenses as $expense) {
             $user_id = $expense->user_id;
             $investment = $investments->where('user_id', $user_id)->first();
 
             if ($investment) {
                 // Calculate the difference between expenses and investment
-                $difference = $investment->total_investment - $expense->total_expense;
-                
+                $difference = abs($investment->total_investment - $expensesPerUser);
+
                 if ($difference > 0) {
                     $result[$user_id] = [
                         'user_id' => $user_id,
-                        'total_expense' => $expense->total_expense,
+                        'total_share' => $expensesPerUser,
                         'total_investment' => $investment->total_investment,
-                        'to_receive' => $difference,
+                        'to_receive' => abs($investment->total_investment - $expensesPerUser),
+                       
                     ];
                 } else {
                     $result[$user_id] = [
                         'user_id' => $user_id,
-                        'total_expense' => $expense->total_expense,
+                        'total_share' => $expensesPerUser,
                         'total_investment' => $investment->total_investment,
-                        'to_pay' => abs($difference),
+                        'to_pay' => abs(number_format( $investment->total_investment, 2) - $expensesPerUser),
+                        
                     ];
                 }
             } else {
                 $result[$user_id] = [
                     'user_id' => $user_id,
-                    'total_expense' => $expense->total_expense,
+                    'total_share' => $expensesPerUser,
                     'total_investment' => 0,
-                    'to_pay' => $expense->total_expense,
+                    'to_pay' => $expensesPerUser,
+                    
                 ];
             }
         }
 
-        return response($result);
+        return response() ->json([
+            'Total expense of month' => $totalExpenses,
+            'Total investment of month' => $totalInvestment,
+            'Users' => $result
+        ]);
     }
 
     public function currentUser(Request $request) {

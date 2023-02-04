@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Expense;
+use App\Models\Investment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 
 class ExpenseController extends Controller
 {
@@ -45,8 +46,20 @@ class ExpenseController extends Controller
         $expense->amount = $validatedData['amount'];
         $expense->save();
 
+        $user = User::find($validatedData['user_id']);
+
+        if($expense) {
+            $investment = Investment::create([
+                'user_id' => $validatedData['user_id'],
+                'investment_date' => $validatedData['expense_date'],
+                'amount' =>  $validatedData['amount'],
+                'added_by' => $user->name,
+                'investment_type' => 'indirect',
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Expense added successfully',
+            'message' => 'Expense and investment added successfully',
         ], 201);
     }
 

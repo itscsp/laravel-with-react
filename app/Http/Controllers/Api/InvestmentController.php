@@ -43,7 +43,7 @@ class InvestmentController extends Controller
 
         if($validator['investment_type'] == 'direct'){
 
-            if($user->role != 1){
+            if($validator['added_by'] != 'AdminUser'){
                 return response()->json([
                     'message' => 'You are not allowed direct investment'
                 ], 401);
