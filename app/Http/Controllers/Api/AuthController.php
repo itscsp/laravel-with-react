@@ -199,7 +199,7 @@ class AuthController extends Controller
                 $result[$user_id] = [
                     'user_id' => $user_id,
                     'total_share' => $expensesPerUser,
-                    'total_investment' => ($difference == 0) ? 0 : $investment->total_investment,
+                    'total_investment' => ($difference == 0) ? 0 : $investment->total_investment ,
                     'to_receive' => abs(($difference == 0) ? 0 : $investment->total_investment - $expensesPerUser),
                 ];
             } else {
