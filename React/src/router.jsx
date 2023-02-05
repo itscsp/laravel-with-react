@@ -10,6 +10,7 @@ import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./views/Dashboard";
 import Expenses from './views/Expenses';
 import ExpenseForm from './views/ExpenseForm';
+import UserForm from './views/UserForm';
 
 
 const router = createBrowserRouter([
@@ -42,7 +43,12 @@ const router = createBrowserRouter([
             },
             {
                 path:'/user/new',
-                element:<Signup />
+                element:<UserForm key="userCreate" />
+            },
+
+            {
+                path:'/user/:id',
+                element:<UserForm key="userUpdate" />
             },
         ]
     },

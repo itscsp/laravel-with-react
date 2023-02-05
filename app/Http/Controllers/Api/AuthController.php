@@ -155,7 +155,6 @@ class AuthController extends Controller
             $totalExpenses = Expense::whereMonth('expense_date', $month)
             ->whereYear('expense_date', $year)
             ->sum('amount');
-
             $totalInvestment = Investment::whereMonth('investment_date', $month)
             ->whereYear('investment_date', $year)
             ->sum('amount');
@@ -165,7 +164,7 @@ class AuthController extends Controller
         $totalUsers = $users->count();
 
         // Divide the total expenses by the total number of active users
-            $expensesPerUser = $totalExpenses / $totalUsers;
+            $expensesPerUser = ceil($totalExpenses / $totalUsers);
       
         // Get the total expenses of each user
             $expenses = Expense::whereMonth('expense_date', $month)
@@ -183,7 +182,7 @@ class AuthController extends Controller
             ->get();
 
         $result = [];
-        foreach ($users as $user) {
+        foreach ($users as  $key => $user) {
             $user_id = $user->id;
             $expense = $expenses->where('user_id', $user_id)->first();
 
@@ -192,20 +191,24 @@ class AuthController extends Controller
             if(is_null($investment)){
                 $difference = 0;
             }else{
-                $difference = abs($investment->total_investment - $expensesPerUser);
+                $difference = $investment->total_investment - $expensesPerUser;
             }
 
             if ($difference > 0) {
-                $result[$user_id] = [
+                $result[$key] = [
                     'user_id' => $user_id,
+                    'user_name' => $user->name,
                     'total_share' => $expensesPerUser,
+                    'total_expense' => 0,
                     'total_investment' => ($difference == 0) ? 0 : $investment->total_investment ,
                     'to_receive' => abs(($difference == 0) ? 0 : $investment->total_investment - $expensesPerUser),
                 ];
             } else {
-                $result[$user_id] = [
+                $result[$key] = [
                     'user_id' => $user_id,
+                    'user_name' => $user->name,
                     'total_share' => $expensesPerUser,
+                    'total_expense' => 0,
                     'total_investment' => ($difference == 0) ? 0 : $investment->total_investment,
                     'to_pay' => abs(number_format( ($difference == 0) ? 0 : $investment->total_investment, 2) - $expensesPerUser),
                 ];
@@ -213,36 +216,44 @@ class AuthController extends Controller
            
         }
         
-        foreach ($expenses as $expense) {
+        foreach ($expenses as $key => $expense) {
             $user_id = $expense->user_id;
             $investment = $investments->where('user_id', $user_id)->first();
 
             if ($investment) {
                 // Calculate the difference between expenses and investment
-                $difference = abs($investment->total_investment - $expensesPerUser);
+                $difference = $investment->total_investment - $expensesPerUser;
 
                 if ($difference > 0) {
-                    $result[$user_id] = [
+                    $result[$key] = [
                         'user_id' => $user_id,
+                        'user_name' => $user->name,
                         'total_share' => $expensesPerUser,
                         'total_investment' => $investment->total_investment,
+                        'total_expense' => $expense->total_expense,
                         'to_receive' => abs($investment->total_investment - $expensesPerUser),
                        
                     ];
                 } else {
-                    $result[$user_id] = [
+                    $result[$key] = [
                         'user_id' => $user_id,
+                        'user_name' => $user->name,
                         'total_share' => $expensesPerUser,
+                        'total_expense' => $expense->total_expense,
                         'total_investment' => $investment->total_investment,
                         'to_pay' => abs(number_format( $investment->total_investment, 2) - $expensesPerUser),
                         
                     ];
+
+
                 }
             } else {
-                $result[$user_id] = [
+                $result[$key] = [
                     'user_id' => $user_id,
-                    'total_share' => $expensesPerUser,
+                    'user_name' => $user->name,
+                    'total_share' => abs($expensesPerUser),
                     'total_investment' => 0,
+                    'total_expense' => $expense->total_expense,
                     'to_pay' => $expensesPerUser,
                     
                 ];
@@ -252,14 +263,24 @@ class AuthController extends Controller
         return response() ->json([
             'Total expense of month' => $totalExpenses,
             'Total investment of month' => $totalInvestment,
-            'Users' => $result
+            'result' => $result,
         ]);
     }
 
-    public function currentUser(Request $request) {
+    public function currentUser(Request $request, $id) {
+        $user = User::find($id);
+        if(!$user) {
+            return response()->json([
+                'message' => 'User not found',
+                'status' => 404
+            ]);
+        }
+        return response()->json($user);
+    }
+    
+    public function ActiveUser(Request $request) {
         return $request->user(); 
     }
-
 
 
 }

@@ -90,9 +90,39 @@ class InvestmentController extends Controller
      * @param  \App\Models\Investment  $investment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Investment $investment)
+    public function update(Request $request, $id)
     {
-        //
+        $validInvestment = Investment::find($id);
+
+        if (!$validInvestment) {
+            return response()->json(['error' => 'Investment not found'], 404);
+        }
+
+        $validator = $request->validate([
+            'user_id' => 'required',
+            'investment_date' => 'required|date',
+            'amount' => 'required|numeric',
+            'added_by' => 'required|string',
+            'investment_type' => 'required|in:direct',
+        ]);
+
+        // Find the investment with the given ID
+
+        
+
+        if($validator['investment_type'] != 'direct'){
+            return response()->json(['error' => 'Your not allowed to edit this investment'], 404);
+        }
+
+         // Update the investment
+         $validInvestment->user_id = $validator['user_id'];
+         $validInvestment->investment_date = $validator['investment_date'];
+         $validInvestment->amount = $validator['amount'];
+         $validInvestment->save();
+ 
+         return response()->json(['message' => 'Investment updated successfully']);
+
+
     }
 
     /**
@@ -101,9 +131,23 @@ class InvestmentController extends Controller
      * @param  \App\Models\Investment  $investment
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Investment $investment)
+    
+    public function destroy(Request $request, $id)
     {
-        //
+        $investment = Investment::find($id);
+
+        if(!$investment) {
+            return response()->json(['error' => 'Investment not found'], 404);
+        }
+
+        if ($request->user()->role === '1') {
+            $investment->delete();
+            return response([
+                'message' => 'Investment deleted successfully',
+                'investment' => $investment
+            ], 200);
+        }
+        return response(['message' => 'You are not authorized to delete this investment'], 403);
     }
 
     public function getInvestmentByMonth(Request $request)

@@ -58,6 +58,10 @@ input:focus {
     cursor: pointer;
 }
 
+.btn.disabled{
+    opacity: 0.7;
+}
+
 .btn-block {
     width: 100%;
 }
