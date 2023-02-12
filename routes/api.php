@@ -23,7 +23,6 @@ Route::middleware('auth:sanctum')->group(function() {
     /*
     * All Users API
     */
-    Route::post('/signup', [AuthController::class, 'signup']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('users/{id}', [AuthController::class, 'setStatus']);
     Route::get('/user/{id}', [AuthController::class, 'currentUser']);
@@ -69,3 +68,5 @@ Route::middleware('auth:sanctum')->group(function() {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/signup', [AuthController::class, 'signup']);
+

@@ -39,11 +39,11 @@ class InvestmentController extends Controller
             'investment_type' => 'required|in:direct,indirect',
         ]);
 
-        $user = User::where('id', $validator['user_id'])->first();
+        // $user = User::where('id', $validator['user_id'])->first();
 
         if($validator['investment_type'] == 'direct'){
 
-            if($validator['added_by'] != 'AdminUser'){
+            if($validator['added_by'] != 'Admin'){
                 return response()->json([
                     'message' => 'You are not allowed direct investment'
                 ], 401);
@@ -78,9 +78,21 @@ class InvestmentController extends Controller
      * @param  \App\Models\Investment  $investment
      * @return \Illuminate\Http\Response
      */
-    public function show(Investment $investment)
+    public function show($id)
     {
         //
+
+        $investment = Investment::find($id);
+        if ($investment) {
+            return response()->json([
+                'investment' => $investment
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Investment not found'
+            ], 404);
+        }
+
     }
 
     /**
@@ -140,28 +152,34 @@ class InvestmentController extends Controller
             return response()->json(['error' => 'Investment not found'], 404);
         }
 
-        if ($request->user()->role === '1') {
+        if ($request->user()->role === 1) {
             $investment->delete();
             return response([
                 'message' => 'Investment deleted successfully',
                 'investment' => $investment
             ], 200);
         }
+
         return response(['message' => 'You are not authorized to delete this investment'], 403);
     }
 
     public function getInvestmentByMonth(Request $request)
     {
+
         $month = $request->month;
         $year = $request->year;
 
+        $users = User::where('status', 1)->get();
+
         $investments = Investment::whereYear('investment_date', $year)
                                 ->whereMonth('investment_date', $month)
+                                ->where('investment_type', 'direct')
                                 ->with('user')
                                 ->get();
 
         return response()->json([
-            'investments' => $investments
+            'investments' => $investments,
+            'users' => $users
         ]);
     }
 }

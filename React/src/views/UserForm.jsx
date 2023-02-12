@@ -57,21 +57,19 @@ const UserForm = () => {
             setError(response.data.errors)
           }
         })
-    }
-
-    if (id) {
-
-
-      if (!window.confirm('Are you sure you want to inactivate this user?')) {
-        return
+    } else {
+      
+      if (user.status == 0) {
+        if (!window.confirm('Are you sure you want to inactivate this user?')) {
+          return
+        }
+        axiosClient.put(`/users/${id}`)
+          .then(() => {
+            //show notification
+            setNotification('User is inactivated')
+            navigate('/dashboard')
+          })
       }
-      axiosClient.put(`/users/${id}`)
-        .then(() => {
-          //show notification
-          setNotification('User is inactivated')
-          navigate('/dashboard')
-        })
-
 
     }
 
@@ -225,7 +223,7 @@ const UserForm = () => {
             </select>
 
 
-            <button type="submit" className={user.status == 1 ? 'btn disabled' : 'btn'}>Save</button>
+            <button type='button' className={user.status == 1 ? 'btn disabled' : 'btn'}>Save</button>
 
           </form>
         }

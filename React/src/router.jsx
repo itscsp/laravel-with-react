@@ -11,6 +11,8 @@ import Dashboard from "./views/Dashboard";
 import Expenses from './views/Expenses';
 import ExpenseForm from './views/ExpenseForm';
 import UserForm from './views/UserForm';
+import Investment from './views/Investment';
+import InvestmentForm from './views/InvestmentForm';
 
 
 const router = createBrowserRouter([
@@ -41,6 +43,22 @@ const router = createBrowserRouter([
                 path:'/expenses/new',
                 element:<ExpenseForm key="expenseCreate" />
             },
+
+            {
+                path:'/investment',
+                exact: true,
+                element:<Investment />
+            },
+            {
+                path:'/investment/:id',
+                element:<InvestmentForm key="investmentUpdate" />
+            },
+            {
+                path:'/investment/new',
+                element:<InvestmentForm key="investmentCreate" />
+            },
+            
+
             {
                 path:'/user/new',
                 element:<UserForm key="userCreate" />

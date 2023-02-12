@@ -14,7 +14,7 @@ const ExpenseForm = () => {
     const [error, setError] = useState(null)
     let CURRENT_USER_ID = localStorage.getItem('CURRENT_USER_ID')
     const {setNotification} = useStateContext()
-debugger
+
     const [expense, setExpense] = useState({
         user_id: CURRENT_USER_ID,
         expense_date: '',

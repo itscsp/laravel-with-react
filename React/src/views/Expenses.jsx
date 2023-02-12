@@ -34,7 +34,7 @@ const Expenses = () => {
   }
 
   const onDelete = (exp) => {
-    if(!window.confirm('Are you sure you want to delete this user?')){
+    if(!window.confirm('Are you sure you want to delete this expense?')){
       return
     }
 

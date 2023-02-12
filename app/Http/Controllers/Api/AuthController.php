@@ -155,9 +155,16 @@ class AuthController extends Controller
             $totalExpenses = Expense::whereMonth('expense_date', $month)
             ->whereYear('expense_date', $year)
             ->sum('amount');
+
             $totalInvestment = Investment::whereMonth('investment_date', $month)
             ->whereYear('investment_date', $year)
             ->sum('amount');
+
+            $directInvestments =  Investment::whereMonth('investment_date', $month)
+            ->whereYear('investment_date', $year)
+            ->where('investment_type', 'direct')
+            ->sum('amount');
+            
 
         // Get the total number of active users
         $users = User::where('status', 1)->get();
@@ -181,6 +188,8 @@ class AuthController extends Controller
             ->selectRaw('user_id, SUM(amount) as total_investment')
             ->get();
 
+         
+
         $result = [];
         foreach ($users as  $key => $user) {
             $user_id = $user->id;
@@ -199,7 +208,7 @@ class AuthController extends Controller
                     'user_id' => $user_id,
                     'user_name' => $user->name,
                     'total_share' => $expensesPerUser,
-                    'total_expense' => 0,
+                    'total_expense' => $expense ? $expense->total_expense : 0,
                     'total_investment' => ($difference == 0) ? 0 : $investment->total_investment ,
                     'to_receive' => abs(($difference == 0) ? 0 : $investment->total_investment - $expensesPerUser),
                 ];
@@ -208,7 +217,7 @@ class AuthController extends Controller
                     'user_id' => $user_id,
                     'user_name' => $user->name,
                     'total_share' => $expensesPerUser,
-                    'total_expense' => 0,
+                    'total_expense' => $expense ? $expense->total_expense : 0,
                     'total_investment' => ($difference == 0) ? 0 : $investment->total_investment,
                     'to_pay' => abs(number_format( ($difference == 0) ? 0 : $investment->total_investment, 2) - $expensesPerUser),
                 ];
@@ -216,53 +225,11 @@ class AuthController extends Controller
            
         }
         
-        foreach ($expenses as $key => $expense) {
-            $user_id = $expense->user_id;
-            $investment = $investments->where('user_id', $user_id)->first();
-
-            if ($investment) {
-                // Calculate the difference between expenses and investment
-                $difference = $investment->total_investment - $expensesPerUser;
-
-                if ($difference > 0) {
-                    $result[$key] = [
-                        'user_id' => $user_id,
-                        'user_name' => $user->name,
-                        'total_share' => $expensesPerUser,
-                        'total_investment' => $investment->total_investment,
-                        'total_expense' => $expense->total_expense,
-                        'to_receive' => abs($investment->total_investment - $expensesPerUser),
-                       
-                    ];
-                } else {
-                    $result[$key] = [
-                        'user_id' => $user_id,
-                        'user_name' => $user->name,
-                        'total_share' => $expensesPerUser,
-                        'total_expense' => $expense->total_expense,
-                        'total_investment' => $investment->total_investment,
-                        'to_pay' => abs(number_format( $investment->total_investment, 2) - $expensesPerUser),
-                        
-                    ];
-
-
-                }
-            } else {
-                $result[$key] = [
-                    'user_id' => $user_id,
-                    'user_name' => $user->name,
-                    'total_share' => abs($expensesPerUser),
-                    'total_investment' => 0,
-                    'total_expense' => $expense->total_expense,
-                    'to_pay' => $expensesPerUser,
-                    
-                ];
-            }
-        }
+       
 
         return response() ->json([
-            'Total expense of month' => $totalExpenses,
-            'Total investment of month' => $totalInvestment,
+            'Total_expense_of_month' => $totalExpenses,
+            'Total_investment_of_month' => $directInvestments,
             'result' => $result,
         ]);
     }
