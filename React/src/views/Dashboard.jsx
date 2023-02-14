@@ -4,36 +4,61 @@ import axiosClient from '../axiosClient';
 import { useStateContext } from '../context/ContextProvider';
 
 const Dashboard = () => {
+
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+  const prsentMonth = currentMonth + "/" + currentYear;
+
   const [users, setUsers] = useState([])
   const [total_expense, setTotal_expense] = useState()
   const [total_investment, setTotal_invesment] = useState()
+  const [monthList, setMonthList] = useState([])
+  const [activeMonth, setActiveMonth] = useState(prsentMonth)
   const { user } = useStateContext();
 
   const Logeduser = user
 
   const [loading, setLoading] = useState(false)
 
+
   useEffect(() => {
     setLoading(true);
 
-    axiosClient.get('/monthly-totals/2/2023')
+    axiosClient.get(`/monthly-totals/${activeMonth}`)
       .then(({ data }) => {
         setLoading(false);
         setUsers(data.result);
         setTotal_expense(data.Total_expense_of_month);
         setTotal_invesment(data.Total_investment_of_month);
-        console.log(data.result[0])
+        setMonthList(data.Month_list);
+
       })
       .catch(() => {
         setLoading(false)
       })
-  }, [])
 
+    console.log(activeMonth)
+
+  }, [activeMonth])
+
+
+
+
+
+
+  const changeMonth = event => {
+    setActiveMonth(event.target.value);
+  };
 
   const flex = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
+  }
+
+  const width = {
+    width: '300px'
   }
 
   return (
@@ -43,9 +68,21 @@ const Dashboard = () => {
           <p>Total Monthly Expenses : {total_expense}</p>
           <p>Total Monthly Direct Investment: {total_investment ? total_investment : 'No direct investment'}</p>
         </div>
-        {Logeduser.role == 1 &&
-          <Link className='btn-add' to="/user/new">Add New</Link>
-        }
+
+
+          <select style={width} onChange={e => changeMonth(e)}>
+            {monthList.map((item, index) => (
+              <option key={index} value={item.value}>{item.label}</option>
+            ))}
+
+          </select>
+        <div style={flex}>
+
+          {Logeduser.role == 1 &&
+            <Link className='btn-add block' to="/user/new">Add New</Link>
+          }
+        </div>
+
 
       </div>
       <div className="card animated fadInDown">

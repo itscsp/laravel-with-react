@@ -148,6 +148,19 @@ class AuthController extends Controller
 
     public function monthlyTotals(Request $request)
     {
+        $months = Expense::selectRaw('DISTINCT(MONTHNAME(expense_date)) as month, YEAR(expense_date) as year')
+                            ->get();
+
+        $monthList = [];
+        
+        foreach ($months as $month) {
+            $date = date_create_from_format("F Y", $month->month . ' ' . $month->year);
+            $newFormat = $date->format("m/Y");
+            $monthList[] =  ['value' => $newFormat, 'label' => $month->month . ' ' . $month->year];
+        }
+
+
+
         $month = $request->month;
         $year = $request->year;
 
@@ -230,6 +243,7 @@ class AuthController extends Controller
         return response() ->json([
             'Total_expense_of_month' => $totalExpenses,
             'Total_investment_of_month' => $directInvestments,
+            'Month_list' => $monthList,
             'result' => $result,
         ]);
     }

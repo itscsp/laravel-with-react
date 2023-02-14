@@ -38,24 +38,30 @@ class ExpenseController extends Controller
             'description' => 'required|min:10|max:150',
             'amount' => 'required|numeric'
         ]);
+        $currentMonth = date('n');
+        $expenseMonth = (int)date("n", strtotime($request->expense_date));
+    
+        if ($currentMonth == $expenseMonth) {
+            $expense = new Expense();
+            $expense->user_id = $validatedData['user_id'];
+            $expense->expense_date = $validatedData['expense_date'];
+            $expense->description = $validatedData['description'];
+            $expense->amount = $validatedData['amount'];
+            $expense->save();
 
-        $expense = new Expense();
-        $expense->user_id = $validatedData['user_id'];
-        $expense->expense_date = $validatedData['expense_date'];
-        $expense->description = $validatedData['description'];
-        $expense->amount = $validatedData['amount'];
-        $expense->save();
+            $user = User::find($validatedData['user_id']);
 
-        $user = User::find($validatedData['user_id']);
-
-        if($expense) {
-            $investment = Investment::create([
-                'user_id' => $validatedData['user_id'],
-                'investment_date' => $validatedData['expense_date'],
-                'amount' =>  $validatedData['amount'],
-                'added_by' => $user->name,
-                'investment_type' => 'indirect',
-            ]);
+            if($expense) {
+                $investment = Investment::create([
+                    'user_id' => $validatedData['user_id'],
+                    'investment_date' => $validatedData['expense_date'],
+                    'amount' =>  $validatedData['amount'],
+                    'added_by' => $user->name,
+                    'investment_type' => 'indirect',
+                ]);
+            }
+        } else {
+            return response()->json(['message' => 'Expense date is not matching with present month'], 400);
         }
 
         return response()->json([
