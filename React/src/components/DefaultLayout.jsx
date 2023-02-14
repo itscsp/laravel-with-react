@@ -47,7 +47,10 @@ const DefaultLayout = () => {
             <aside>
                 <Link to='/dashboard'>Dashboard</Link>
                 <Link to='/expenses'>Expenses</Link>
-                <Link to='/investment'>Investment</Link>
+                {user.role == 1 &&
+                    <Link to='/investment'>Investment</Link>
+                }
+
             </aside>
             <div className="content">
                 <header>

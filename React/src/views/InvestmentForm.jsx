@@ -25,7 +25,23 @@ const InvestmentForm = () => {
         }
     )
 
+    useEffect(() => {
 
+        setLoading(true);
+        axiosClient.get(`/users`)
+            .then(({ data }) => {
+                setLoading(false);
+                setUserslist(data);
+
+              
+
+            })
+            .catch(() => {
+                setLoading(false)
+            })
+
+
+    }, [])
 
     if (id) {
         useEffect(() => {
@@ -41,24 +57,7 @@ const InvestmentForm = () => {
                     setLoading(false)
                 })
         }, [])
-    } else {
-        useEffect(() => {
-
-            setLoading(true);
-            axiosClient.get(`/users`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setUserslist(data);
-
-                })
-                .catch(() => {
-                    setLoading(false)
-                })
-
-
-        }, [])
     }
-
 
     const onSubmit = (ev) => {
         ev.preventDefault();
@@ -91,6 +90,8 @@ const InvestmentForm = () => {
                 })
         }
     }
+
+    const filtereduser = userslist.filter(userslist => userslist.name != investment.added_by);
 
 
     return (
@@ -138,25 +139,31 @@ const InvestmentForm = () => {
                                 }
                             )}
                         />
-                        {!id &&
+                        
                         
                         <select onChange={ev => setInvestment(
                             {
-                                ...investment, user_id: ev.target.value, added_by: Logeduser
+                                ...investment, user_id: ev.target.value, added_by: ev.target.value
                             }
                         )
                         }
-                        >
+                        > 
+                        
+                        {!id &&
                             <option>Select user for investment</option>
+                        }
 
-                            {userslist.map(usr => (
+                        {id && 
+                            <option>{investment.added_by}</option>
+                        }
+                            {filtereduser.map(usr => (
                                 <option key={usr.id} value={usr.id}>{usr.name}</option>
                             ))}
 
 
 
                         </select>
-                        }
+                        
 
 
 

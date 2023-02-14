@@ -114,8 +114,8 @@ class InvestmentController extends Controller
             'user_id' => 'required',
             'investment_date' => 'required|date',
             'amount' => 'required|numeric',
-            'added_by' => 'required|string',
             'investment_type' => 'required|in:direct',
+            'added_by' => 'required|string',
         ]);
 
         // Find the investment with the given ID
@@ -127,12 +127,16 @@ class InvestmentController extends Controller
         }
 
          // Update the investment
+         $user = User::find($validator['user_id']);
+        $username = $user->name;
          $validInvestment->user_id = $validator['user_id'];
          $validInvestment->investment_date = $validator['investment_date'];
          $validInvestment->amount = $validator['amount'];
+         $validInvestment->added_by =  $username;
+         
          $validInvestment->save();
  
-         return response()->json(['message' => 'Investment updated successfully']);
+         return response()->json(['message' => 'Investment updated successfully', 'added by' => $validInvestment]);
 
 
     }
