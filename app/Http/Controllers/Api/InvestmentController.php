@@ -30,6 +30,8 @@ class InvestmentController extends Controller
      */
     public function store(Request $request)
     {
+
+        
       
         $validator = $request->validate([
             'user_id' => 'required',
@@ -40,30 +42,37 @@ class InvestmentController extends Controller
         ]);
 
         // $user = User::where('id', $validator['user_id'])->first();
+        $currentMonth = date('n');
+        $investment_date = (int)date("n", strtotime($request->investment_date));
 
-        if($validator['investment_type'] == 'direct'){
+        if ($currentMonth == $investment_date) {
 
-            if($validator['added_by'] != 'Admin'){
-                return response()->json([
-                    'message' => 'You are not allowed direct investment'
-                ], 401);
+            if($validator['investment_type'] == 'direct'){
+
+                if($validator['added_by'] != 'Admin'){
+                    return response()->json([
+                        'message' => 'You are not allowed direct investment'
+                    ], 401);
+                }
+
+                $investment = Investment::create([
+                    'user_id' => $validator['user_id'],
+                    'investment_date' => $validator['investment_date'],
+                    'amount' => $validator['amount'],
+                    'added_by' => $validator['added_by'],
+                    'investment_type' => $validator['investment_type'],
+                ]);
+            }else {
+                $investment = Investment::create([
+                    'user_id' => $validator['user_id'],
+                    'investment_date' => $validator['investment_date'],
+                    'amount' => $validator['amount'],
+                    'added_by' => $validator['added_by'],
+                    'investment_type' => $validator['investment_type'],
+                ]);
             }
-
-            $investment = Investment::create([
-                'user_id' => $validator['user_id'],
-                'investment_date' => $validator['investment_date'],
-                'amount' => $validator['amount'],
-                'added_by' => $validator['added_by'],
-                'investment_type' => $validator['investment_type'],
-            ]);
-        }else {
-            $investment = Investment::create([
-                'user_id' => $validator['user_id'],
-                'investment_date' => $validator['investment_date'],
-                'amount' => $validator['amount'],
-                'added_by' => $validator['added_by'],
-                'investment_type' => $validator['investment_type'],
-            ]);
+        } else {
+            return response()->json(['message' => 'Investment date is not matching with present month'], 400);
         }
         
         return response()->json([
