@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false)
 
 
+
   useEffect(() => {
     setLoading(true);
 
@@ -51,11 +52,7 @@ const Dashboard = () => {
     setActiveMonth(event.target.value);
   };
 
-  const flex = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  }
+
 
   const width = {
     width: '300px'
@@ -63,29 +60,24 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div style={flex}>
-        <div>
-          <p>Total Monthly Expenses : {total_expense}</p>
-          <p>Total Monthly Direct Investment: {total_investment ? total_investment : 'No direct investment'}</p>
-        </div>
+      <div className='flex'>
 
+        <h2>Current Month Report</h2>
 
-          <select style={width} onChange={e => changeMonth(e)}>
+        <div >
+        <select style={width} onChange={e => changeMonth(e)}>
+            <option>Change Month</option>
             {monthList.map((item, index) => (
               <option key={index} value={item.value}>{item.label}</option>
             ))}
 
           </select>
-        <div style={flex}>
-
-          {Logeduser.role == 1 &&
-            <Link className='btn-add block' to="/user/new">Add New</Link>
-          }
         </div>
 
 
       </div>
       <div className="card animated fadInDown">
+    
         <table>
           <thead>
             <tr>
@@ -96,7 +88,7 @@ const Dashboard = () => {
               <th>Balance to pay</th>
               <th>Balance to receive</th>
               {Logeduser.role == 1 &&
-                <th>Action</th>
+                <th>Deactivate user</th>
               }
             </tr>
           </thead>
@@ -124,7 +116,7 @@ const Dashboard = () => {
                   <td>₹ {user.to_receive ? user.to_receive + '.00' : 0}</td>
                   {Logeduser.role == 1 &&
                     <td>
-                      <Link className='btn-edit' to={'/user/' + user.user_id}>Inactive</Link>
+                      <Link className='btn-edit' to={'/user/' + user.user_id}>Deactivate</Link>
                     </td>
                   }
                 </tr>
@@ -132,6 +124,10 @@ const Dashboard = () => {
             </tbody>
           }
         </table>
+        <div className='flex mt-5'>
+          <h3>Monthly Total Direct Investment: ₹{total_investment ? total_investment : 'No direct investment'}</h3>
+          <h3>Monthly Total Expenses : ₹{total_expense}.00</h3>
+        </div>
       </div>
     </div>
   )

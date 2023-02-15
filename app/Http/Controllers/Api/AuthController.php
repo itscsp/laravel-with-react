@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use DateTime;
 use App\Models\User;
+use App\Models\Expense;
 use App\Models\Investment;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
@@ -10,7 +12,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SignupRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Expense;
 
 class AuthController extends Controller
 {
@@ -152,7 +153,7 @@ class AuthController extends Controller
                             ->get();
 
         $monthList = [];
-        
+
         foreach ($months as $month) {
             $date = date_create_from_format("F Y", $month->month . ' ' . $month->year);
             $newFormat = $date->format("m/Y");
@@ -163,6 +164,7 @@ class AuthController extends Controller
 
         $month = $request->month;
         $year = $request->year;
+
 
         // Get the total expenses of the current month
             $totalExpenses = Expense::whereMonth('expense_date', $month)
@@ -244,6 +246,7 @@ class AuthController extends Controller
             'Total_expense_of_month' => $totalExpenses,
             'Total_investment_of_month' => $directInvestments,
             'Month_list' => $monthList,
+       
             'result' => $result,
         ]);
     }

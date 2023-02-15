@@ -6,7 +6,7 @@ import { useStateContext } from '../context/ContextProvider'
 
 const DefaultLayout = () => {
 
-    
+
     const { user, token, notification, setUser, setToken } = useStateContext();
 
     // console.log('Checking for user', user)
@@ -26,7 +26,7 @@ const DefaultLayout = () => {
                 setUser({});
                 setToken(null);
             })
-            
+
         // console.log(response)
     }
     // console.log('Checking for user 2',user)
@@ -34,12 +34,12 @@ const DefaultLayout = () => {
     useEffect(() => {
 
         axiosClient.get('/user')
-        .then(({data}) => {
-            setUser(data)
-        })
-        
+            .then(({ data }) => {
+                setUser(data)
+            })
+
     }, [])
-    
+
     // console.log('Checking for user 3',user)
 
     return (
@@ -51,15 +51,19 @@ const DefaultLayout = () => {
                     <Link to='/investment'>Investment</Link>
                 }
 
+                {user.role == 1 &&
+                    <Link  to="/user/new">Add Member</Link>
+                }
+                 <a href='#' className="btn-logout" onClick={onLogout}>Logout</a>
+
             </aside>
             <div className="content">
                 <header>
                     <div>
-                        Room Expenses Tracker
+                        <h1>Room Expenses Tracker</h1>
                     </div>
                     <div>
-                        {user.name}
-                        <a href='#' className="btn-logout" onClick={onLogout}>Logout</a>
+                        Hi, {user.name}
                     </div>
                 </header>
                 <main>
@@ -68,9 +72,9 @@ const DefaultLayout = () => {
                 </main>
 
                 {notification &&
-                     <div className="notification">
-                     {notification}
-                   </div>
+                    <div className="notification">
+                        {notification}
+                    </div>
                 }
             </div>
         </div>

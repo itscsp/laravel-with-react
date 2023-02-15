@@ -250,3 +250,14 @@ table > tbody > tr > td {
         transform: translateY(0);
     }
 }
+
+.flex{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.mt-5{
+    margin-top: 30px;
+}
