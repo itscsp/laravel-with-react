@@ -11,7 +11,7 @@ const DefaultLayout = () => {
 
     // console.log('Checking for user', user)
 
-    if (!token) {
+    if (!token && user) {
         return <Navigate to="/login" />
     }
 
